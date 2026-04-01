@@ -498,37 +498,39 @@ for i in range(5):
 # In[17]:
 
 
-import evaluate
-from tqdm import tqdm # Gives us a nice progress bar
-
-# Load the ROUGE metric
-rouge = evaluate.load("rouge")
-
-print("Running post-training ROUGE evaluation on the test set...")
+from evaluate import load
+from tqdm import tqdm
+rouge = load("rouge")
 
 predictions = []
 references = []
 
-# Optional: Limit to the first 100 samples for a quick evaluation, 
-# or remove the `.select()` to run on the entire test set.
-test_subset = split_ds['test'].select(range(min(100, len(split_ds['test']))))
-
+test_subset = formatted_ds['test'].select(range(min(100, len(formatted_ds['test']))))
 for sample in tqdm(test_subset):
-    image = sample["image"]
-    ground_truth = sample["message"]
+    image = sample["images"]
 
-    # Generate prediction using your existing function
+    # 🔥 FIX: extract ground truth correctly
+    if "impression" in sample:
+        gt = sample["impression"]
+    else:
+        # fallback for messages format
+        gt = sample["messages"][-1]["content"]
+
+    # Generate prediction
     pred = generate_impression(model, processor, image)
-
-    # Strip the "Impression:" prefix for a fairer ROUGE text comparison
-    pred_clean = pred.replace("Impression:", "").strip()
-    gt_clean = ground_truth.strip()
+    # Clean text
+    pred_clean = str(pred).replace("Impression:", "").strip()
+    gt_clean = str(gt).strip()
 
     predictions.append(pred_clean)
     references.append(gt_clean)
 
-# Calculate final scores
-results = rouge.compute(predictions=predictions, references=references, use_stemmer=True)
+# Compute ROUGE
+    results = rouge.compute(
+    predictions=predictions,
+    references=references,
+    use_stemmer=True
+)
 
 print("\n=== Final Test Set ROUGE Scores ===")
 print(f"ROUGE-1: {results['rouge1']:.4f}")

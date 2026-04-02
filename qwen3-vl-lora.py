@@ -229,7 +229,11 @@ def collate_fn(examples):
             print(f"Warning: Could not find assistant header in sequence {i}. Loss calculation might be skewed.")
 
     batch["labels"] = labels
-
+    device = torch.device("cuda")
+    batch = {
+        k: v.to(device) if isinstance(v, torch.Tensor) else v
+        for k, v in batch.items()
+    }
     return batch
 
 
@@ -349,8 +353,8 @@ training_args = SFTConfig(
     optim="adamw_torch_fused",                                   # Optimizer
     max_length=None,                                      # For VLMs, truncating may remove image tokens, leading to errors during training. max_length=None avoids it
     packing=False,
-    fp16=False,
-    bf16=True,
+    fp16=True,
+    bf16=False,
     lr_scheduler_type="cosine",
     remove_unused_columns=False, #added
     run_name=run_name,

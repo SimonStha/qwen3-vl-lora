@@ -60,7 +60,7 @@ MAX_SAMPLES_PER_PHRASE = args.max_samples
 
 run_name   = f"Qwen3-VL-4B-Instruct-xray-lora-r{r}-lr{lr}-epochs{epochs}-batch{batch_size}"
 output_dir = args.output_dir or f"./checkpoints/{run_name}"
-os.environ["WANDB_API_KEY"] = "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"
+
 # In[3]:
 
 

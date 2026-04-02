@@ -29,7 +29,7 @@ print("CUDA available:", torch.cuda.is_available())
 parser = argparse.ArgumentParser(description="Fine-tune Qwen3-VL with LoRA on MIMIC-CXR")
 
 parser.add_argument("--r",                  type=int,   default=32,     help="LoRA rank")
-parser.add_argument("--lr",                 type=float, default=2e-4,   help="Learning rate")
+parser.add_argument("--lr",                 type=float, default=1e-4,   help="Learning rate")
 parser.add_argument("--epochs",             type=int,   default=3,      help="Number of training epochs")
 parser.add_argument("--batch_size",         type=int,   default=2,      help="Per-device train batch size")
 parser.add_argument("--gradient_steps",     type=int,   default=2,     help="Gradient accumulation steps")

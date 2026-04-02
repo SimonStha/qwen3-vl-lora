@@ -302,8 +302,7 @@ wandb.init(
 model_name = "Qwen/Qwen3-VL-4B-Instruct"
 model = Qwen3VLForConditionalGeneration.from_pretrained(
     model_name,
-    dtype="auto",
-    device_map="auto",
+    torch_dtype=torch.float16,
     attn_implementation="eager",
     # quantization_config=BitsAndBytesConfig(
     #     load_in_4bit=True,                        # Load the model in 4-bit precision to save memory

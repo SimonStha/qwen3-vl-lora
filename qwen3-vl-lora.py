@@ -229,11 +229,7 @@ def collate_fn(examples):
             print(f"Warning: Could not find assistant header in sequence {i}. Loss calculation might be skewed.")
 
     batch["labels"] = labels
-    device = torch.device("cuda")
-    batch = {
-        k: v.to(device) if isinstance(v, torch.Tensor) else v
-        for k, v in batch.items()
-    }
+   
     return batch
 
 

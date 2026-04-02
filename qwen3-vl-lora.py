@@ -32,7 +32,7 @@ parser.add_argument("--r",                  type=int,   default=32,     help="Lo
 parser.add_argument("--lr",                 type=float, default=2e-4,   help="Learning rate")
 parser.add_argument("--epochs",             type=int,   default=3,      help="Number of training epochs")
 parser.add_argument("--batch_size",         type=int,   default=2,      help="Per-device train batch size")
-parser.add_argument("--gradient_steps",     type=int,   default=16,     help="Gradient accumulation steps")
+parser.add_argument("--gradient_steps",     type=int,   default=2,     help="Gradient accumulation steps")
 parser.add_argument("--warmup_ratio",       type=float, default=0.1,    help="Warmup ratio")
 parser.add_argument("--lora_dropout",       type=float, default=0.1,    help="LoRA dropout")
 parser.add_argument("--weight_decay",       type=float, default=0.05,   help="Weight decay")
@@ -60,7 +60,7 @@ MAX_SAMPLES_PER_PHRASE = args.max_samples
 
 run_name   = f"Qwen3-VL-4B-Instruct-xray-lora-r{r}-lr{lr}-epochs{epochs}-batch{batch_size}"
 output_dir = args.output_dir or f"./checkpoints/{run_name}"
-
+os.environ["WANDB_API_KEY"] = "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"
 # In[3]:
 
 

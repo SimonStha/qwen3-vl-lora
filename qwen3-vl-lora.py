@@ -35,6 +35,7 @@ parser.add_argument("--batch_size",         type=int,   default=2,      help="Pe
 parser.add_argument("--gradient_steps",     type=int,   default=2,     help="Gradient accumulation steps")
 parser.add_argument("--warmup_ratio",       type=float, default=0.1,    help="Warmup ratio")
 parser.add_argument("--lora_dropout",       type=float, default=0.05,    help="LoRA dropout")
+parser.add_argument("--weight_decay",       type=float, default=0.01,   help="Weight decay")
 parser.add_argument("--max_samples",        type=int,   default=13,     help="Max samples per phrase (dedup cap)")
 parser.add_argument("--eval_steps",         type=int,   default=200,    help="Eval and save frequency")
 parser.add_argument("--early_stopping",     type=int,   default=3,      help="Early stopping patience")

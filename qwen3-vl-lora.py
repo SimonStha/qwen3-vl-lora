@@ -496,28 +496,29 @@ for i in range(5):
 
 
 # In[17]:
-
-
 from evaluate import load
 from tqdm import tqdm
+
 rouge = load("rouge")
+bleu = load("bleu")
 
 predictions = []
 references = []
 
 test_subset = formatted_ds['test'].select(range(min(100, len(formatted_ds['test']))))
+
 for sample in tqdm(test_subset):
     image = sample["images"]
 
-    # 🔥 FIX: extract ground truth correctly
+    # Ground truth extraction
     if "impression" in sample:
         gt = sample["impression"]
     else:
-        # fallback for messages format
         gt = sample["messages"][-1]["content"]
 
     # Generate prediction
     pred = generate_impression(model, processor, image)
+
     # Clean text
     pred_clean = str(pred).replace("Impression:", "").strip()
     gt_clean = str(gt).strip()
@@ -525,15 +526,21 @@ for sample in tqdm(test_subset):
     predictions.append(pred_clean)
     references.append(gt_clean)
 
-# Compute ROUGE
-    results = rouge.compute(
+# 🔥 ROUGE
+rouge_results = rouge.compute(
     predictions=predictions,
     references=references,
     use_stemmer=True
 )
 
-print("\n=== Final Test Set ROUGE Scores ===")
-print(f"ROUGE-1: {results['rouge1']:.4f}")
-print(f"ROUGE-2: {results['rouge2']:.4f}")
-print(f"ROUGE-L: {results['rougeL']:.4f}")
+# 🔥 BLEU (needs list of lists)
+bleu_results = bleu.compute(
+    predictions=predictions,
+    references=[[ref] for ref in references]
+)
 
+print("\n=== Final Test Set Scores ===")
+print(f"ROUGE-1: {rouge_results['rouge1']:.4f}")
+print(f"ROUGE-2: {rouge_results['rouge2']:.4f}")
+print(f"ROUGE-L: {rouge_results['rougeL']:.4f}")
+print(f"BLEU: {bleu_results['bleu']:.4f}")

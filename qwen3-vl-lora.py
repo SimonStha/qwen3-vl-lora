@@ -60,7 +60,7 @@ MAX_SAMPLES_PER_PHRASE = args.max_samples
 
 run_name   = f"Qwen3-VL-4B-Instruct-xray-lora-r{r}-lr{lr}-epochs{epochs}-batch{batch_size}"
 output_dir = args.output_dir or f"./checkpoints/{run_name}"
-os.environ["WANDB_API_KEY"] = "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"
+os.environ["WANDB_API_KEY"] = "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"
 # In[3]:
 
 
@@ -431,7 +431,7 @@ def generate_impression(model, processor, image):
             do_sample=False,  # deterministic output (better for evaluation)
         )
 
-    # 🔥 IMPORTANT: Remove input tokens (prompt)
+    # Remove input tokens
     generated_ids = generated_ids[:, inputs["input_ids"].shape[1]:]
 
     # Decode only new tokens
@@ -526,14 +526,14 @@ for sample in tqdm(test_subset):
     predictions.append(pred_clean)
     references.append(gt_clean)
 
-# 🔥 ROUGE
+# ROUGE
 rouge_results = rouge.compute(
     predictions=predictions,
     references=references,
     use_stemmer=True
 )
 
-# 🔥 BLEU (needs list of lists)
+# BLEU 
 bleu_results = bleu.compute(
     predictions=predictions,
     references=[[ref] for ref in references]

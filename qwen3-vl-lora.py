@@ -38,6 +38,8 @@ parser.add_argument("--lora_dropout",       type=float, default=0.05,    help="L
 parser.add_argument("--weight_decay",       type=float, default=0.01,   help="Weight decay")
 parser.add_argument("--max_samples",        type=int,   default=13,     help="Max samples per phrase (dedup cap)")
 parser.add_argument("--eval_steps",         type=int,   default=200,    help="Eval and save frequency")
+parser.add_argument("--bf16",             action="store_true", help="Use bf16 precision")
+parser.add_argument("--fp16",             action="store_true", help="Use fp16 precision")
 parser.add_argument("--early_stopping",     type=int,   default=3,      help="Early stopping patience")
 parser.add_argument("--model_name",         type=str,   default="Qwen/Qwen3-VL-4B-Instruct", help="Base model")
 parser.add_argument("--dataset",            type=str,   default="itsanmolgupta/mimic-cxr-dataset", help="HF dataset")
@@ -45,9 +47,15 @@ parser.add_argument("--output_dir",         type=str,   default=None,   help="Ov
 
 args = parser.parse_args()
 
+# Precision logic: default to bf16 if neither specified, and ensure not both
+if args.bf16 and args.fp16:
+    parser.error("Cannot use both --bf16 and --fp16. Please choose one.")
+if not args.bf16 and not args.fp16:
+    args.bf16 = True
+
 # Derived variables
 r           = args.r
-l_alpha     = 32
+l_alpha     = r*2
 lr          = args.lr
 epochs      = args.epochs
 batch_size  = args.batch_size
@@ -57,7 +65,9 @@ lora_dropout    = args.lora_dropout
 weight_decay    = args.weight_decay
 model_name      = args.model_name
 MAX_SAMPLES_PER_PHRASE = args.max_samples
-
+bf16 = args.bf16
+fp16 = args.fp16
+compute_dtype = torch.bfloat16 if bf16 else torch.float16
 run_name   = f"Qwen3-VL-4B-Instruct-xray-lora-r{r}-lr{lr}-epochs{epochs}-batch{batch_size}"
 output_dir = args.output_dir or f"./checkpoints/{run_name}"
 
@@ -302,14 +312,8 @@ wandb.init(
 model_name = "Qwen/Qwen3-VL-4B-Instruct"
 model = Qwen3VLForConditionalGeneration.from_pretrained(
     model_name,
-    torch_dtype=torch.float16,
+    torch_dtype=compute_dtype,
     attn_implementation="eager",
-    # quantization_config=BitsAndBytesConfig(
-    #     load_in_4bit=True,                        # Load the model in 4-bit precision to save memory
-    #     bnb_4bit_compute_dtype=torch.float16,     # Data type used for internal computations in quantization
-    #     bnb_4bit_use_double_quant=True,           # Use double quantization to improve accuracy
-    #     bnb_4bit_quant_type="nf4"                 # Type of quantization. "nf4" is recommended for recent LLMs
-    # )
 )
 
 processor = AutoProcessor.from_pretrained(model_name, use_fast=False) # Changed from AutoTokenizer to AutoProcessor
@@ -348,8 +352,8 @@ training_args = SFTConfig(
     optim="adamw_torch_fused",                                   # Optimizer
     max_length=None,                                      # For VLMs, truncating may remove image tokens, leading to errors during training. max_length=None avoids it
     packing=False,
-    fp16=True,
-    bf16=False,
+    fp16=fp16,
+    bf16=bf16,
     lr_scheduler_type="cosine",
     remove_unused_columns=False, #added
     run_name=run_name,
@@ -455,7 +459,7 @@ Loading VLM base model and processor
 bnb_config = BitsAndBytesConfig(
     load_in_4bit=True,
     bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch.bfloat16,
+    bnb_4bit_compute_dtype=compute_dtype,
     bnb_4bit_use_double_quant=True
 )
 

@@ -64,8 +64,18 @@ The script automatically downloads and processes the MIMIC-CXR dataset.
 | `--lr` | 1e-4 | Learning rate |
 | `--epochs` | 3 | Number of training epochs |
 | `--batch_size` | 2 | Per-device training batch size |
+| `--gradient_steps` | 2 | Gradient accumulation steps |
+| `--warmup_ratio` | 0.1 | Warmup ratio |
+| `--lora_dropout` | 0.05 | LoRA dropout |
+| `--weight_decay` | 0.01 | Weight decay |
 | `--max_samples` | 13 | Max samples per unique impression (deduplication) |
+| `--eval_steps` | 200 | Eval and save frequency |
+| `--bf16` | False* | Use bf16 precision (*defaulted to True if not specified) |
+| `--fp16` | False | Use fp16 precision |
+| `--early_stopping` | 3 | Early stopping patience |
 | `--model_name` | Qwen/Qwen3-VL-4B-Instruct | Base VLM model |
+| `--dataset` | itsanmolgupta/mimic-cxr-dataset | Hugging Face dataset |
+| `--output_dir` | None | Override checkpoint output directory |
 
 ## Evaluation
 
